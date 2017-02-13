@@ -19,10 +19,32 @@ static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskAllBu
 - (instancetype)init
 {
   if ((self = [super init])) {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:@"UIDeviceOrientationDidChangeNotification" object:nil];
+    
+    NSArray *orientations = [[NSBundle mainBundle]
+                             objectForInfoDictionaryKey:@"UISupportedInterfaceOrientations"];
+    
+    if (orientations != nil && [orientations count] > 0) {
+      UIInterfaceOrientationMask oMask = 0;
+      
+      for (NSString * o in orientations) {
+        if ([o isEqualToString:@"UIInterfaceOrientationPortrait"]) {
+          oMask |= UIInterfaceOrientationMaskPortrait;
+        } else if ([o isEqualToString:@"UIInterfaceOrientationLandscapeLeft"]) {
+          oMask |= UIInterfaceOrientationMaskLandscapeLeft;
+        } else if ([o isEqualToString:@"UIInterfaceOrientationLandscapeRight"]) {
+          oMask |= UIInterfaceOrientationMaskLandscapeRight;
+        } else if ([o isEqualToString:@"UIInterfaceOrientationPortraitUpsideDown"]){
+          oMask |= UIInterfaceOrientationMaskPortraitUpsideDown;
+        }
+      }
+      
+      _orientation = oMask;
+    }
   }
+  
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:@"UIDeviceOrientationDidChangeNotification" object:nil];
+  
   return self;
-
 }
 
 - (void)dealloc
